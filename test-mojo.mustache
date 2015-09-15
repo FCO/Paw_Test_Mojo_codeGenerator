@@ -1,0 +1,25 @@
+use Mojo::Base -strict;
+
+use Test::More;
+use Test::Mojo;
+
+my $t = Test::Mojo->new('{{{ projName }}}');
+
+# {{{ request.name }}}
+$t->{{{ testFunc }}}(
+	{{#headers.has_headers}}
+	{
+		{{#headers.header_list}}
+		"{{{header_name}}}"	=> "{{{header_value}}}",
+		{{/headers.header_list}}
+	},
+	{{/headers.has_headers}}
+	json => {{{ jsonBody }}}
+)
+	->status_is({{{ exchange.responseStatusCode }}})
+	{{#hasResponse}}
+	{{#testResponse}}
+	->json_is('{{{responseKey}}}' => '{{{responseValue}}}')
+	{{/testResponse}}
+	{{/hasResponse}}
+;
