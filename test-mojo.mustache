@@ -6,7 +6,7 @@ use Test::Mojo;
 my $t = Test::Mojo->new('{{{ projName }}}');
 
 # {{{ request.name }}}
-$t->{{{ testFunc }}}(
+$t->{{{ testFunc }}}("{{{ path }}}" =>
 	{{#headers.has_headers}}
 	{
 		{{#headers.header_list}}

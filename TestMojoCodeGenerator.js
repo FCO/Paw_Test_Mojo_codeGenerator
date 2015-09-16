@@ -170,6 +170,7 @@
 					"testFunc":	request.method.toLowerCase() + "_ok",
 					"projName":	context.toString().replace(/.*<Document: (.+?)>/, "$1"),
 					"request":	request,
+					"path":		request.url.replace(new RegExp("^.+://[^/]+"), ""),
 					"headers":	this.headers(request),
 					"body":		this.body(request),
 					"jsonBody":	this.json2perl(request.jsonBody, "\t"),
