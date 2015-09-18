@@ -14,12 +14,14 @@ $t->{{{ testFunc }}}("{{{ path }}}" =>
 		{{/headers.header_list}}
 	},
 	{{/headers.has_headers}}
+	{{#jsonBody}}
 	json => {{{ jsonBody }}}
+	{{/jsonBody}}
 )
 	->status_is({{{ exchange.responseStatusCode }}})
 	{{#hasResponse}}
 	{{#testResponse}}
-	->json_is('{{{responseKey}}}' => '{{{responseValue}}}')
+	->json_is('{{{responseKey}}}'	=> '{{{responseValue}}}')
 	{{/testResponse}}
 	{{/hasResponse}}
 ;

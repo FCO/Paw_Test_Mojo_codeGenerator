@@ -101,25 +101,26 @@
 			};
 			this.json2perl = function(json, ident) {
 				if(!ident) ident = "";
-				var ret = "";
+				var ret = [];
 				if(json instanceof Array) {
-					ret = "[\n" + json.map(function(item) {
+					ret.push("[\n" + json.map(function(item) {
 						return "\t" + ident + this.json2perl(item, ident + "\t");
-					}.bind(this)).join(",\n") + "\n" + ident + "]";
+					}.bind(this)).join(",\n") + "\n" + ident + "]");
 				} else if(typeof json === "object") {
-					ret = "{\n" + Object.keys(json).map(function(item) {
+					ret.push("{\n" + Object.keys(json).map(function(item) {
 						return "\t" + ident + item + "\t=> " + this.json2perl(json[item], ident + "\t");
-					}.bind(this)).join(",\n") + "\n" + ident + "}";
+					}.bind(this)).join(",\n") + "\n" + ident + "}");
 				} else if(typeof json === "boolean") {
-					ret = json ? 1 : 0;
-				} else if(json === undefined) {
-					ret = "undefined";
-				} else if(json === null) {
-					ret = "null";
-				} else
-					ret = "'" + json.toString().replace(/(@$)/g, "\\$1") + "'";
+					ret.push(json ? 1 : 0);
+				//} else if(json === undefined) {
+				//	ret = "undef";
+				//} else if(json === null) {
+				//	ret = "undef";
+				} else if(json !== null && json !== undefined) {
+					ret.push("'" + json.toString().replace(/(@$)/g, "\\$1") + "'");
+				}
 
-				return ret.toString();
+				return ret;
 			};
 			this.json2pointer = function(json) {
 				var hash = this.json2pointerHash(json);
@@ -134,7 +135,8 @@
 			this.json2pointerHash = function(json) {
 				var ret = {};
 				if(json instanceof Array) {
-					ret = json.map(function(item, index) {
+					//console.log("array");
+					json.forEach(function(item, index) {
 						var res = this.json2pointerHash(item);
 						if(typeof res === "object") {
 							Object.keys(res).forEach(function(key) {
@@ -145,20 +147,30 @@
 						}
 					}.bind(this));
 				} else if(typeof json === "object") {
+					//console.log("object");
 					Object.keys(json).forEach(function(item) {
 						var res = this.json2pointerHash(json[item]);
+						//console.log(res);
 						if(typeof res === "object") {
 							Object.keys(res).forEach(function(key) {
 								ret["/" + item + key] = res[key];
 							});
+							if(item == "tags") ret["all"] = JSON.stringify(res);
 						} else {
 							ret["/" + item] = res;
 						}
 					}.bind(this));
 				} else if(typeof json === "boolean") {
+					//console.log("bolean");
 					ret = json ? 1 : 0;
-				} else
+				} else if(typeof json === "number") {
+					ret = json.valueOf();
+				} else if(typeof json === "string") {
+					ret = json.toString();
+				} else {
+					//console.log("native");
 					ret = json;
+				}
 
 				return ret;
 			};
@@ -179,12 +191,12 @@
 
 				if(exchange && exchange.responseBody) {
 					if(exchange.responseBody) {
-						console.log(exchange.responseBody);
+						//console.log(exchange.responseBody);
 						view.responseJson = JSON.parse(exchange.responseBody);
-						console.log(view.responseJson);
+						//console.log(view.responseJson);
 						view.testResponse = this.json2pointer(view.responseJson);
-						console.log("created view.testResponse: ");
-						console.log(JSON.stringify(view.testResponse));
+						//console.log("created view.testResponse: ");
+						//console.log(JSON.stringify(view.testResponse));
 						if(view.testResponse.length > 0) view.hasResponse = true;
 					}
 				}
